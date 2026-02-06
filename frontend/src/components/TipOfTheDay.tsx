@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import { Lightbulb } from 'lucide-react';
 import { tipsApi } from '@/lib/api';
 
+import { Skeleton } from "@/components/ui/skeleton";
+
 export function TipOfTheDay() {
     const [tip, setTip] = useState('');
     const [isVisible, setIsVisible] = useState(false);
@@ -29,7 +31,18 @@ export function TipOfTheDay() {
     }, []);
 
     if (isLoading) {
-        return null; // Or a loading skeleton
+        return (
+            <div className="zen-card bg-gradient-to-br from-zen-sage-light/10 to-zen-blue-light/10 border border-zen-sage/10">
+                <div className="flex items-start gap-4">
+                    <Skeleton className="w-11 h-11 rounded-full" />
+                    <div className="space-y-2 flex-1">
+                        <Skeleton className="h-5 w-32" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-2/3" />
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     return (

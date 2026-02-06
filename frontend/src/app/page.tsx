@@ -10,9 +10,11 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background zen-bg-pattern p-4 relative overflow-hidden">
       {/* Decorative floating elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-[10%] w-64 h-64 bg-zen-sage/5 rounded-full blur-3xl zen-breathe" />
-        <div className="absolute bottom-20 right-[10%] w-80 h-80 bg-zen-blue/5 rounded-full blur-3xl zen-breathe" style={{ animationDelay: '2s' }} />
+      <div className="absolute inset-0 overflow-hidden pointer-events-none flex justify-center">
+        <div className="relative w-full max-w-[1800px] h-full">
+          <div className="absolute top-20 left-[10%] w-64 h-64 bg-zen-sage/5 rounded-full blur-3xl zen-breathe" />
+          <div className="absolute bottom-20 right-[10%] w-80 h-80 bg-zen-blue/5 rounded-full blur-3xl zen-breathe" style={{ animationDelay: '2s' }} />
+        </div>
       </div>
 
       {/* Header */}

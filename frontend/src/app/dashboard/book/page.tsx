@@ -148,7 +148,7 @@ export default function BookAppointmentPage() {
                             <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
                                 Step 2: Pick a Date
                             </h2>
-                            <div className="bg-white dark:bg-slate-900 rounded-xl shadow p-4 inline-block">
+                            <div className="bg-white dark:bg-slate-900 rounded-xl shadow p-4 inline-block max-w-full overflow-x-auto">
                                 <DayPicker
                                     mode="single"
                                     selected={selectedDate}
@@ -179,7 +179,7 @@ export default function BookAppointmentPage() {
                                 Step 3: Choose a Time
                             </h2>
 
-                            <ToggleGroup type="single" value={selectedTime || ''} onValueChange={(value) => setSelectedTime(value || null)} className="grid grid-cols-3 gap-3 mb-6 justify-start">
+                            <ToggleGroup type="single" value={selectedTime || ''} onValueChange={(value) => setSelectedTime(value || null)} className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6 justify-start">
                                 {timeSlots.map((time) => (
                                     <ToggleGroupItem
                                         key={time}

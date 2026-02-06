@@ -24,6 +24,7 @@ export default function DashboardPage() {
     const router = useRouter();
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [cancellingId, setCancellingId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -49,6 +50,7 @@ export default function DashboardPage() {
     }, [userId, getToken, router]);
 
     const handleCancel = async (id: string) => {
+        setCancellingId(id);
         try {
             const token = await getToken();
             await appointmentsApi.cancel(token, id);
@@ -58,6 +60,8 @@ export default function DashboardPage() {
         } catch (err) {
             console.error('Failed to cancel appointment:', err);
             toast.error('Could not cancel appointment');
+        } finally {
+            setCancellingId(null);
         }
     };
 
@@ -127,8 +131,8 @@ export default function DashboardPage() {
                                             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-zen-sage-light to-zen-sage flex items-center justify-center text-white font-semibold shadow-sm">
                                                 {apt.doctor_name.split(' ').map(n => n[0]).join('')}
                                             </div>
-                                            <div>
-                                                <p className="font-medium text-foreground">{apt.doctor_name}</p>
+                                            <div className="min-w-0">
+                                                <p className="font-medium text-foreground truncate">{apt.doctor_name}</p>
                                                 <p className="text-sm text-muted-foreground">
                                                     {format(new Date(apt.scheduled_at), 'MMM d, yyyy')} at {format(new Date(apt.scheduled_at), 'h:mm a')}
                                                 </p>
@@ -141,10 +145,11 @@ export default function DashboardPage() {
                                             <Button
                                                 variant="outline"
                                                 size="sm"
+                                                disabled={cancellingId === apt.id}
                                                 className="rounded-full hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-900/20"
                                                 onClick={() => handleCancel(apt.id)}
                                             >
-                                                Cancel
+                                                {cancellingId === apt.id ? 'Cancelling...' : 'Cancel'}
                                             </Button>
                                         </div>
                                     </motion.div>
