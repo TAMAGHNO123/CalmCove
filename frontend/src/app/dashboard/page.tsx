@@ -5,8 +5,11 @@ import { useAuth, useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { appointmentsApi } from '@/lib/api';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Appointment {
     id: string;
@@ -51,9 +54,10 @@ export default function DashboardPage() {
             await appointmentsApi.cancel(token, id);
             // Refresh appointments
             setAppointments(prev => prev.filter(apt => apt.id !== id));
+            toast.success('Appointment cancelled successfully');
         } catch (err) {
             console.error('Failed to cancel appointment:', err);
-            alert('Failed to cancel appointment');
+            toast.error('Could not cancel appointment');
         }
     };
 
@@ -86,7 +90,20 @@ export default function DashboardPage() {
                     </h2>
 
                     {isLoading ? (
-                        <p className="text-muted-foreground text-center py-8">Loading...</p>
+                        <div className="space-y-4">
+                            {[1, 2, 3].map((i) => (
+                                <div key={i} className="flex items-center justify-between p-4 bg-zen-cream-dark dark:bg-secondary rounded-xl">
+                                    <div className="flex items-center gap-4">
+                                        <Skeleton className="w-12 h-12 rounded-full" />
+                                        <div className="space-y-2">
+                                            <Skeleton className="h-4 w-32" />
+                                            <Skeleton className="h-3 w-24" />
+                                        </div>
+                                    </div>
+                                    <Skeleton className="h-8 w-20 rounded-full" />
+                                </div>
+                            ))}
+                        </div>
                     ) : error ? (
                         <p className="text-red-500 text-center py-8">{error}</p>
                     ) : appointments.length === 0 ? (
@@ -94,39 +111,46 @@ export default function DashboardPage() {
                             No upcoming appointments. Book one to get started!
                         </p>
                     ) : (
-                        <div className="space-y-4">
-                            {appointments.map((apt) => (
-                                <div
-                                    key={apt.id}
-                                    className="flex items-center justify-between p-4 bg-zen-cream-dark dark:bg-secondary rounded-xl"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-zen-sage-light to-zen-sage flex items-center justify-center text-white font-semibold">
-                                            {apt.doctor_name.split(' ').map(n => n[0]).join('')}
+                        <motion.div layout className="space-y-4">
+                            <AnimatePresence mode="popLayout">
+                                {appointments.map((apt) => (
+                                    <motion.div
+                                        layout
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        transition={{ duration: 0.2 }}
+                                        key={apt.id}
+                                        className="flex items-center justify-between p-4 bg-zen-cream-dark dark:bg-secondary rounded-xl"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-zen-sage-light to-zen-sage flex items-center justify-center text-white font-semibold shadow-sm">
+                                                {apt.doctor_name.split(' ').map(n => n[0]).join('')}
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-foreground">{apt.doctor_name}</p>
+                                                <p className="text-sm text-muted-foreground">
+                                                    {format(new Date(apt.scheduled_at), 'MMM d, yyyy')} at {format(new Date(apt.scheduled_at), 'h:mm a')}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-medium text-foreground">{apt.doctor_name}</p>
-                                            <p className="text-sm text-muted-foreground">
-                                                {format(new Date(apt.scheduled_at), 'MMM d, yyyy')} at {format(new Date(apt.scheduled_at), 'h:mm a')}
-                                            </p>
+                                        <div className="flex items-center gap-3">
+                                            <span className="px-3 py-1 text-xs font-medium bg-zen-sage/20 text-zen-sage-dark rounded-full">
+                                                {apt.status}
+                                            </span>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="rounded-full hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-900/20"
+                                                onClick={() => handleCancel(apt.id)}
+                                            >
+                                                Cancel
+                                            </Button>
                                         </div>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <span className="px-3 py-1 text-xs font-medium bg-zen-sage/20 text-zen-sage-dark rounded-full">
-                                            {apt.status}
-                                        </span>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="rounded-full"
-                                            onClick={() => handleCancel(apt.id)}
-                                        >
-                                            Cancel
-                                        </Button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        </motion.div>
                     )}
                 </section>
 

@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { DayPicker } from 'react-day-picker';
 import { format, addDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useAuth } from '@clerk/nextjs';
 import { appointmentsApi } from '@/lib/api';
@@ -100,91 +101,114 @@ export default function BookAppointmentPage() {
                     Book an Appointment
                 </h1>
 
-                {/* Step 1: Select Doctor */}
-                {step === 1 && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                        <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-                            Step 1: Choose a Professional
-                        </h2>
-                        <div className="space-y-3">
-                            {doctors.map((doctor) => (
-                                <button
-                                    key={doctor.id}
-                                    onClick={() => { setSelectedDoctor(doctor); setStep(2); }}
-                                    className="w-full flex items-center gap-4 p-4 bg-white dark:bg-slate-900 rounded-xl shadow hover:shadow-lg transition-shadow text-left"
-                                >
-                                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold">
-                                        {doctor.name.split(' ').map(n => n[0]).join('')}
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-slate-900 dark:text-white">{doctor.name}</p>
-                                        <p className="text-sm text-slate-500">{doctor.specialty}</p>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    </motion.div>
-                )}
-
-                {/* Step 2: Select Date */}
-                {step === 2 && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                        <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-                            Step 2: Pick a Date
-                        </h2>
-                        <div className="bg-white dark:bg-slate-900 rounded-xl shadow p-4 inline-block">
-                            <DayPicker
-                                mode="single"
-                                selected={selectedDate}
-                                onSelect={(date) => { setSelectedDate(date); if (date) setStep(3); }}
-                                disabled={{ before: new Date() }}
-                                fromDate={new Date()}
-                                toDate={addDays(new Date(), 60)}
-                            />
-                        </div>
-                        <Button variant="outline" className="mt-4" onClick={() => setStep(1)}>
-                            ← Back
-                        </Button>
-                    </motion.div>
-                )}
-
-                {/* Step 3: Select Time */}
-                {step === 3 && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                        <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-                            Step 3: Choose a Time
-                        </h2>
-                        <div className="grid grid-cols-3 gap-3 mb-6">
-                            {timeSlots.map((time) => (
-                                <button
-                                    key={time}
-                                    onClick={() => setSelectedTime(time)}
-                                    className={`p-3 rounded-lg border text-sm font-medium transition-colors ${selectedTime === time
-                                        ? 'bg-indigo-600 text-white border-indigo-600'
-                                        : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white border-slate-200 dark:border-slate-700 hover:border-indigo-400'
-                                        }`}
-                                >
-                                    {time}
-                                </button>
-                            ))}
-                        </div>
-                        {error && (
-                            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm">
-                                {error}
+                <AnimatePresence mode="wait">
+                    {/* Step 1: Select Doctor */}
+                    {step === 1 && (
+                        <motion.div
+                            key="step1"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
+                                Step 1: Choose a Professional
+                            </h2>
+                            <div className="space-y-3">
+                                {doctors.map((doctor) => (
+                                    <motion.button
+                                        key={doctor.id}
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        onClick={() => { setSelectedDoctor(doctor); setStep(2); }}
+                                        className="w-full flex items-center gap-4 p-4 bg-white dark:bg-slate-900 rounded-xl shadow hover:shadow-lg transition-shadow text-left"
+                                    >
+                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                                            {doctor.name.split(' ').map(n => n[0]).join('')}
+                                        </div>
+                                        <div>
+                                            <p className="font-medium text-slate-900 dark:text-white">{doctor.name}</p>
+                                            <p className="text-sm text-slate-500">{doctor.specialty}</p>
+                                        </div>
+                                    </motion.button>
+                                ))}
                             </div>
-                        )}
-                        <div className="flex gap-3">
-                            <Button variant="outline" onClick={() => setStep(2)} disabled={isLoading}>← Back</Button>
-                            <Button
-                                onClick={handleBooking}
-                                disabled={!selectedTime || isLoading}
-                                className="flex-1 rounded-full"
-                            >
-                                {isLoading ? 'Booking...' : 'Confirm Booking'}
-                            </Button>
-                        </div>
-                    </motion.div>
-                )}
+                        </motion.div>
+                    )}
+
+                    {/* Step 2: Select Date */}
+                    {step === 2 && (
+                        <motion.div
+                            key="step2"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
+                                Step 2: Pick a Date
+                            </h2>
+                            <div className="bg-white dark:bg-slate-900 rounded-xl shadow p-4 inline-block">
+                                <DayPicker
+                                    mode="single"
+                                    selected={selectedDate}
+                                    onSelect={(date) => { setSelectedDate(date); if (date) setStep(3); }}
+                                    disabled={{ before: new Date() }}
+                                    fromDate={new Date()}
+                                    toDate={addDays(new Date(), 60)}
+                                />
+                            </div>
+                            <div className="mt-4">
+                                <Button variant="outline" onClick={() => setStep(1)}>
+                                    ← Back
+                                </Button>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {/* Step 3: Select Time */}
+                    {step === 3 && (
+                        <motion.div
+                            key="step3"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
+                                Step 3: Choose a Time
+                            </h2>
+
+                            <ToggleGroup type="single" value={selectedTime || ''} onValueChange={(value) => setSelectedTime(value || null)} className="grid grid-cols-3 gap-3 mb-6 justify-start">
+                                {timeSlots.map((time) => (
+                                    <ToggleGroupItem
+                                        key={time}
+                                        value={time}
+                                        className="h-auto py-3 px-4 rounded-lg border text-sm font-medium data-[state=on]:bg-indigo-600 data-[state=on]:text-white data-[state=on]:border-indigo-600"
+                                    >
+                                        {time}
+                                    </ToggleGroupItem>
+                                ))}
+                            </ToggleGroup>
+
+                            {error && (
+                                <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm">
+                                    {error}
+                                </div>
+                            )}
+                            <div className="flex gap-3">
+                                <Button variant="outline" onClick={() => setStep(2)} disabled={isLoading}>← Back</Button>
+                                <Button
+                                    onClick={handleBooking}
+                                    disabled={!selectedTime || isLoading}
+                                    className="flex-1 rounded-full"
+                                >
+                                    {isLoading ? 'Booking...' : 'Confirm Booking'}
+                                </Button>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );
