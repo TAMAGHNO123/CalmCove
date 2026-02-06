@@ -1,0 +1,338 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ========================================
+   CalmCove Zen Design System
+   Soft blues, sage greens, warm creams
+   ======================================== */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* Zen Color Palette */
+  --color-zen-cream: var(--zen-cream);
+  --color-zen-cream-dark: var(--zen-cream-dark);
+  --color-zen-sage: var(--zen-sage);
+  --color-zen-sage-light: var(--zen-sage-light);
+  --color-zen-sage-dark: var(--zen-sage-dark);
+  --color-zen-blue: var(--zen-blue);
+  --color-zen-blue-light: var(--zen-blue-light);
+  --color-zen-blue-dark: var(--zen-blue-dark);
+  --color-zen-stone: var(--zen-stone);
+  --color-zen-stone-light: var(--zen-stone-light);
+
+  /* Rounded radii for soft appearance */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+  --radius-4xl: 2.5rem;
+}
+
+:root {
+  --radius: 1rem;
+
+  /* Zen Light Theme - Warm Creams & Soft Colors */
+  --background: #FAF8F5;
+  --foreground: #3D4A3F;
+
+  /* Zen Palette */
+  --zen-cream: #FAF8F5;
+  --zen-cream-dark: #F0EDE8;
+  --zen-sage: #8FA68B;
+  --zen-sage-light: #B8CCAC;
+  --zen-sage-dark: #5C7356;
+  --zen-blue: #7BA3B8;
+  --zen-blue-light: #A8C5D4;
+  --zen-blue-dark: #4D7A8F;
+  --zen-stone: #9B8E7E;
+  --zen-stone-light: #C4BBB0;
+
+  /* UI Colors mapped to Zen palette */
+  --card: #FFFFFF;
+  --card-foreground: #3D4A3F;
+  --popover: #FFFFFF;
+  --popover-foreground: #3D4A3F;
+  --primary: #5C7356;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F0EDE8;
+  --secondary-foreground: #3D4A3F;
+  --muted: #F0EDE8;
+  --muted-foreground: #6B7B6E;
+  --accent: #A8C5D4;
+  --accent-foreground: #2C3E42;
+  --destructive: #C9A88C;
+  --border: #E5E0D8;
+  --input: #E5E0D8;
+  --ring: #8FA68B;
+
+  /* Charts with Zen colors */
+  --chart-1: #8FA68B;
+  --chart-2: #7BA3B8;
+  --chart-3: #B8CCAC;
+  --chart-4: #A8C5D4;
+  --chart-5: #9B8E7E;
+
+  /* Sidebar */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #3D4A3F;
+  --sidebar-primary: #5C7356;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F0EDE8;
+  --sidebar-accent-foreground: #3D4A3F;
+  --sidebar-border: #E5E0D8;
+  --sidebar-ring: #8FA68B;
+}
+
+.dark {
+  /* Zen Dark Theme - Soft, not harsh */
+  --background: #1F2421;
+  --foreground: #E8E4DF;
+
+  /* Zen Palette Dark Mode */
+  --zen-cream: #2A2F2B;
+  --zen-cream-dark: #1F2421;
+  --zen-sage: #8FA68B;
+  --zen-sage-light: #B8CCAC;
+  --zen-sage-dark: #6B8366;
+  --zen-blue: #7BA3B8;
+  --zen-blue-light: #A8C5D4;
+  --zen-blue-dark: #5D8A9F;
+  --zen-stone: #9B8E7E;
+  --zen-stone-light: #B8ADA2;
+
+  /* UI Colors */
+  --card: #2A2F2B;
+  --card-foreground: #E8E4DF;
+  --popover: #2A2F2B;
+  --popover-foreground: #E8E4DF;
+  --primary: #8FA68B;
+  --primary-foreground: #1F2421;
+  --secondary: #353B37;
+  --secondary-foreground: #E8E4DF;
+  --muted: #353B37;
+  --muted-foreground: #A8A299;
+  --accent: #5D8A9F;
+  --accent-foreground: #E8E4DF;
+  --destructive: #C9A88C;
+  --border: rgba(232, 228, 223, 0.12);
+  --input: rgba(232, 228, 223, 0.15);
+  --ring: #6B8366;
+
+  /* Charts */
+  --chart-1: #8FA68B;
+  --chart-2: #7BA3B8;
+  --chart-3: #B8CCAC;
+  --chart-4: #A8C5D4;
+  --chart-5: #9B8E7E;
+
+  /* Sidebar */
+  --sidebar: #2A2F2B;
+  --sidebar-foreground: #E8E4DF;
+  --sidebar-primary: #8FA68B;
+  --sidebar-primary-foreground: #1F2421;
+  --sidebar-accent: #353B37;
+  --sidebar-accent-foreground: #E8E4DF;
+  --sidebar-border: rgba(232, 228, 223, 0.12);
+  --sidebar-ring: #6B8366;
+}
+
+/* ========================================
+   Base Styles
+   ======================================== */
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Smooth scrolling for peaceful experience */
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* ========================================
+   Zen Animations - Soft & Peaceful
+   ======================================== */
+
+@keyframes zen-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes zen-fade-in-slow {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes zen-breathe {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+}
+
+@keyframes zen-float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Animation utility classes */
+.zen-fade-in {
+  animation: zen-fade-in 0.8s ease-out forwards;
+}
+
+.zen-fade-in-slow {
+  animation: zen-fade-in-slow 1.2s ease-out forwards;
+}
+
+.zen-breathe {
+  animation: zen-breathe 4s ease-in-out infinite;
+}
+
+.zen-float {
+  animation: zen-float 3s ease-in-out infinite;
+}
+
+/* Staggered fade-in for children */
+.zen-stagger>* {
+  opacity: 0;
+  animation: zen-fade-in 0.6s ease-out forwards;
+}
+
+.zen-stagger>*:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.zen-stagger>*:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.zen-stagger>*:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.zen-stagger>*:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.zen-stagger>*:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+.zen-stagger>*:nth-child(6) {
+  animation-delay: 0.6s;
+}
+
+/* ========================================
+   Zen Component Styles
+   ======================================== */
+
+/* Peaceful card style */
+.zen-card {
+  @apply bg-card rounded-2xl p-6;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  transition: all 0.4s ease;
+}
+
+.zen-card:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+}
+
+/* Gentle button transitions */
+.zen-button {
+  @apply rounded-full transition-all duration-300 ease-out;
+}
+
+.zen-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(92, 115, 86, 0.2);
+}
+
+/* Soft gradient backgrounds */
+.zen-gradient-sage {
+  background: linear-gradient(135deg, var(--zen-sage-light) 0%, var(--zen-sage) 100%);
+}
+
+.zen-gradient-blue {
+  background: linear-gradient(135deg, var(--zen-blue-light) 0%, var(--zen-blue) 100%);
+}
+
+.zen-gradient-cream {
+  background: linear-gradient(180deg, var(--zen-cream) 0%, var(--zen-cream-dark) 100%);
+}
+
+/* Peaceful background pattern */
+.zen-bg-pattern {
+  background-image:
+    radial-gradient(circle at 20% 80%, rgba(143, 166, 139, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(123, 163, 184, 0.08) 0%, transparent 50%);
+}
