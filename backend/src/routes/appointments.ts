@@ -1,8 +1,17 @@
 import { Router } from 'express';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { requireAuth } from '../middleware/auth';
+import { z } from 'zod';
 
 const router = Router();
+
+// Validation schema
+const createAppointmentSchema = z.object({
+    doctorName: z.string().min(1, "Doctor name is required"),
+    scheduledAt: z.string().datetime().refine((date) => new Date(date) > new Date(), {
+        message: "Scheduled time must be in the future"
+    })
+});
 
 // Initialize Supabase client (optional - works without it using mock data)
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -39,11 +48,15 @@ router.get('/', requireAuth, async (req, res) => {
 // Create new appointment - PROTECTED
 router.post('/', requireAuth, async (req, res) => {
     const userId = req.userId!; // Guaranteed to exist after requireAuth
-    const { doctorName, scheduledAt } = req.body;
 
-    if (!doctorName || !scheduledAt) {
-        return res.status(400).json({ error: 'doctorName and scheduledAt are required' });
+    // Validate request body
+    const result = createAppointmentSchema.safeParse(req.body);
+
+    if (!result.success) {
+        return res.status(400).json({ error: result.error?.issues[0]?.message || "Invalid input" });
     }
+
+    const { doctorName, scheduledAt } = result.data;
 
     if (!supabase) {
         return res.status(503).json({ error: 'Database not configured' });
