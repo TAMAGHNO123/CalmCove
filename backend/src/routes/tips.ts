@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { requireAuth } from '../middleware/auth';
 
 const router = Router();
 
@@ -41,8 +42,8 @@ router.get('/today', async (req, res) => {
 
     try {
         // Try to get tip from database
-        const { data, error } = await supabase
-            .from('daily_tips')
+        const { data, error } = await supabase!
+            .from('tips')
             .select('tip_text')
             .eq('date', today)
             .single();
@@ -59,8 +60,8 @@ router.get('/today', async (req, res) => {
     }
 });
 
-// Add a new tip (for admin/cron use)
-router.post('/', async (req, res) => {
+// Add a new tip (for admin/cron use) - PROTECTED
+router.post('/', requireAuth, async (req, res) => {
     const { tipText, date } = req.body;
 
     if (!tipText) {
@@ -74,12 +75,9 @@ router.post('/', async (req, res) => {
     const tipDate = date || new Date().toISOString().split('T')[0];
 
     try {
-        const { data, error } = await supabase
-            .from('daily_tips')
-            .upsert({
-                tip_text: tipText,
-                date: tipDate
-            })
+        const { data, error } = await supabase!
+            .from('tips')
+            .insert({ tip_text: tipText, date: date || new Date().toISOString().split('T')[0] })
             .select()
             .single();
 

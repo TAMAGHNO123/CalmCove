@@ -6,6 +6,8 @@ import { format, addDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useAuth } from '@clerk/nextjs';
+import { appointmentsApi } from '@/lib/api';
 import 'react-day-picker/style.css';
 
 const timeSlots = [
@@ -20,15 +22,45 @@ const doctors = [
 ];
 
 export default function BookAppointmentPage() {
+    const { getToken } = useAuth();
     const [step, setStep] = useState(1);
     const [selectedDoctor, setSelectedDoctor] = useState<typeof doctors[0] | null>(null);
     const [selectedDate, setSelectedDate] = useState<Date | undefined>();
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
     const [isBooked, setIsBooked] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    const handleBooking = () => {
-        // In production, POST to backend API
-        setIsBooked(true);
+    const handleBooking = async () => {
+        if (!selectedDoctor || !selectedDate || !selectedTime) return;
+
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            // Get Clerk session token
+            const token = await getToken();
+
+            // Combine date and time into ISO string
+            const [time, period] = selectedTime.split(' ');
+            const [hours, minutes] = time.split(':').map(Number);
+            const adjustedHours = period === 'PM' && hours !== 12 ? hours + 12 : hours === 12 && period === 'AM' ? 0 : hours;
+
+            const scheduledDateTime = new Date(selectedDate);
+            scheduledDateTime.setHours(adjustedHours, minutes, 0, 0);
+
+            await appointmentsApi.create(token, {
+                doctorName: selectedDoctor.name,
+                scheduledAt: scheduledDateTime.toISOString(),
+            });
+
+            setIsBooked(true);
+        } catch (err) {
+            console.error('Failed to book appointment:', err);
+            setError(err instanceof Error ? err.message : 'Failed to book appointment');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     if (isBooked) {
@@ -128,22 +160,27 @@ export default function BookAppointmentPage() {
                                     key={time}
                                     onClick={() => setSelectedTime(time)}
                                     className={`p-3 rounded-lg border text-sm font-medium transition-colors ${selectedTime === time
-                                            ? 'bg-indigo-600 text-white border-indigo-600'
-                                            : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white border-slate-200 dark:border-slate-700 hover:border-indigo-400'
+                                        ? 'bg-indigo-600 text-white border-indigo-600'
+                                        : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white border-slate-200 dark:border-slate-700 hover:border-indigo-400'
                                         }`}
                                 >
                                     {time}
                                 </button>
                             ))}
                         </div>
+                        {error && (
+                            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm">
+                                {error}
+                            </div>
+                        )}
                         <div className="flex gap-3">
-                            <Button variant="outline" onClick={() => setStep(2)}>← Back</Button>
+                            <Button variant="outline" onClick={() => setStep(2)} disabled={isLoading}>← Back</Button>
                             <Button
                                 onClick={handleBooking}
-                                disabled={!selectedTime}
+                                disabled={!selectedTime || isLoading}
                                 className="flex-1 rounded-full"
                             >
-                                Confirm Booking
+                                {isLoading ? 'Booking...' : 'Confirm Booking'}
                             </Button>
                         </div>
                     </motion.div>

@@ -3,29 +3,34 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Lightbulb } from 'lucide-react';
-
-const fallbackTips = [
-    "Take a 5-minute break to stretch and breathe deeply.",
-    "Stay hydrated – your brain needs water to function at its best.",
-    "Write down three things you're grateful for today.",
-    "Go for a short walk outside to boost your mood.",
-    "Try the 4-7-8 breathing technique: inhale 4s, hold 7s, exhale 8s.",
-    "Limit screen time before bed for better sleep quality.",
-    "Connect with a friend or loved one today.",
-];
+import { tipsApi } from '@/lib/api';
 
 export function TipOfTheDay() {
     const [tip, setTip] = useState('');
     const [isVisible, setIsVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Get a consistent daily tip based on date
-        const today = new Date();
-        const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000);
-        const tipIndex = dayOfYear % fallbackTips.length;
-        setTip(fallbackTips[tipIndex] || fallbackTips[0]);
-        setIsVisible(true);
+        async function fetchTip() {
+            try {
+                const data = await tipsApi.getToday();
+                setTip(data.tip);
+            } catch (error) {
+                console.error('Failed to fetch tip:', error);
+                // Fallback tip on error
+                setTip("Take a moment to breathe deeply and center yourself.");
+            } finally {
+                setIsLoading(false);
+                setIsVisible(true);
+            }
+        }
+
+        fetchTip();
     }, []);
+
+    if (isLoading) {
+        return null; // Or a loading skeleton
+    }
 
     return (
         <motion.div

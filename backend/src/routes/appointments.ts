@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { requireAuth } from '../middleware/auth';
 
 const router = Router();
 
@@ -12,20 +13,16 @@ if (supabaseUrl && supabaseKey) {
     supabase = createClient(supabaseUrl, supabaseKey);
 }
 
-// Get user's appointments
-router.get('/', async (req, res) => {
-    const userId = req.headers['x-user-id'] as string;
-
-    if (!userId) {
-        return res.status(401).json({ error: 'Unauthorized' });
-    }
+// Get user's appointments - PROTECTED
+router.get('/', requireAuth, async (req, res) => {
+    const userId = req.userId!; // Guaranteed to exist after requireAuth
 
     if (!supabase) {
         return res.status(503).json({ error: 'Database not configured' });
     }
 
     try {
-        const { data, error } = await supabase
+        const { data, error } = await supabase!
             .from('appointments')
             .select('*')
             .eq('user_id', userId)
@@ -34,17 +31,18 @@ router.get('/', async (req, res) => {
         if (error) throw error;
         res.json(data);
     } catch (error) {
+        console.error('Error fetching appointments:', error);
         res.status(500).json({ error: 'Failed to fetch appointments' });
     }
 });
 
-// Create new appointment
-router.post('/', async (req, res) => {
-    const userId = req.headers['x-user-id'] as string;
+// Create new appointment - PROTECTED
+router.post('/', requireAuth, async (req, res) => {
+    const userId = req.userId!; // Guaranteed to exist after requireAuth
     const { doctorName, scheduledAt } = req.body;
 
-    if (!userId) {
-        return res.status(401).json({ error: 'Unauthorized' });
+    if (!doctorName || !scheduledAt) {
+        return res.status(400).json({ error: 'doctorName and scheduledAt are required' });
     }
 
     if (!supabase) {
@@ -52,7 +50,7 @@ router.post('/', async (req, res) => {
     }
 
     try {
-        const { data, error } = await supabase
+        const { data, error } = await supabase!
             .from('appointments')
             .insert({
                 user_id: userId,
@@ -66,29 +64,26 @@ router.post('/', async (req, res) => {
         if (error) throw error;
         res.status(201).json(data);
     } catch (error) {
+        console.error('Failed to create appointment:', error);
         res.status(500).json({ error: 'Failed to create appointment' });
     }
 });
 
-// Cancel appointment
-router.delete('/:id', async (req, res) => {
-    const userId = req.headers['x-user-id'] as string;
+// Cancel appointment - PROTECTED
+router.delete('/:id', requireAuth, async (req, res) => {
+    const userId = req.userId!; // Guaranteed to exist after requireAuth
     const { id } = req.params;
-
-    if (!userId) {
-        return res.status(401).json({ error: 'Unauthorized' });
-    }
 
     if (!supabase) {
         return res.status(503).json({ error: 'Database not configured' });
     }
 
     try {
-        const { error } = await supabase
+        const { error } = await supabase!
             .from('appointments')
             .delete()
             .eq('id', id)
-            .eq('user_id', userId);
+            .eq('user_id', userId); // Ensure user can only delete their own appointments
 
         if (error) throw error;
         res.status(204).send();
