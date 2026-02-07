@@ -2,7 +2,7 @@
 
 > Your personal sanctuary for mental clarity. Find peace, track your wellness, and nurture your mind with AI-powered insights.
 
-![CalmCove Banner](https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=1200&auto=format&fit=crop)
+![CalmCove Banner](https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=1200&h=400&auto=format&fit=crop)
 
 ## 🚀 Tech Stack
 
