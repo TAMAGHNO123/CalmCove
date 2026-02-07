@@ -190,6 +190,16 @@
   html {
     scroll-behavior: smooth;
   }
+
+  /* Pointer cursor for all clickable elements */
+  button,
+  [role="button"],
+  a,
+  input[type="submit"],
+  input[type="button"],
+  .cursor-pointer {
+    cursor: pointer;
+  }
 }
 
 /* ========================================

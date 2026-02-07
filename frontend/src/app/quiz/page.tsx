@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { QuizProgress } from '@/components/quiz/QuizProgress';
 import { QuizQuestion } from '@/components/quiz/QuizQuestion';
 import { QuizResult } from '@/components/quiz/QuizResult';
+import { useAuth } from '@clerk/nextjs';
+import { quizApi } from '@/lib/api';
 
 const questions = [
     {
@@ -65,6 +67,8 @@ export default function QuizPage() {
     const [answers, setAnswers] = useState<number[]>([]);
     const [showResult, setShowResult] = useState(false);
 
+    const { getToken } = useAuth();
+
     const handleAnswer = (weight: number) => {
         const newAnswers = [...answers, weight];
         setAnswers(newAnswers);
@@ -72,7 +76,23 @@ export default function QuizPage() {
         if (currentQuestion < questions.length - 1) {
             setCurrentQuestion(currentQuestion + 1);
         } else {
+            // Quiz complete
             setShowResult(true);
+            saveResult(newAnswers);
+        }
+    };
+
+    const saveResult = async (finalAnswers: number[]) => {
+        try {
+            const totalScore = finalAnswers.reduce((sum, val) => sum + val, 0);
+            const maxScore = questions.length * 3;
+            const percentage = Math.round((totalScore / maxScore) * 100);
+
+            const token = await getToken();
+            await quizApi.saveResult(token, percentage);
+            // Optionally toast success
+        } catch (error) {
+            console.error("Failed to save quiz result", error);
         }
     };
 

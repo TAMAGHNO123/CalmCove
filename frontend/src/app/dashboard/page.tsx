@@ -10,6 +10,8 @@ import { appointmentsApi } from '@/lib/api';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import { TipOfTheDay } from '@/components/TipOfTheDay';
+import { Calendar, Heart, MessageCircle, BookOpen, ArrowRight } from 'lucide-react';
 
 interface Appointment {
     id: string;
@@ -54,7 +56,6 @@ export default function DashboardPage() {
         try {
             const token = await getToken();
             await appointmentsApi.cancel(token, id);
-            // Refresh appointments
             setAppointments(prev => prev.filter(apt => apt.id !== id));
             toast.success('Appointment cancelled successfully');
         } catch (err) {
@@ -66,111 +67,153 @@ export default function DashboardPage() {
     };
 
     if (!userId) {
-        return null; // Will redirect
+        return null;
     }
 
     return (
         <div className="min-h-screen bg-background zen-bg-pattern p-6">
-            <div className="max-w-4xl mx-auto">
-                <header className="flex justify-between items-center mb-8">
-                    <div>
-                        <h1 className="text-3xl font-bold text-foreground">
-                            Welcome back, {user?.firstName || 'there'}!
-                        </h1>
-                        <p className="text-muted-foreground mt-1">
-                            Manage your appointments and wellness journey
-                        </p>
-                    </div>
-                    <Link href="/dashboard/book">
-                        <Button size="lg" className="rounded-full bg-zen-sage hover:bg-zen-sage-dark text-white">
-                            + Book Appointment
-                        </Button>
-                    </Link>
+            <div className="max-w-6xl mx-auto">
+                <header className="mb-8">
+                    <h1 className="text-3xl font-bold text-foreground">
+                        Welcome back, {user?.firstName || 'there'}!
+                    </h1>
+                    <p className="text-muted-foreground mt-1">
+                        Your daily sanctuary for peace and balance.
+                    </p>
                 </header>
 
-                <section className="zen-card mb-6">
-                    <h2 className="text-xl font-semibold text-foreground mb-4">
-                        Upcoming Appointments
-                    </h2>
+                {/* Main Grid Layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                    {isLoading ? (
-                        <div className="space-y-4">
-                            {[1, 2, 3].map((i) => (
-                                <div key={i} className="flex items-center justify-between p-4 bg-zen-cream-dark dark:bg-secondary rounded-xl">
-                                    <div className="flex items-center gap-4">
-                                        <Skeleton className="w-12 h-12 rounded-full" />
-                                        <div className="space-y-2">
-                                            <Skeleton className="h-4 w-32" />
-                                            <Skeleton className="h-3 w-24" />
-                                        </div>
+                    {/* Left Column - 2 cols */}
+                    <div className="lg:col-span-2 space-y-6">
+
+                        {/* Row 1: Tip of the Day */}
+                        <TipOfTheDay />
+
+                        {/* Row 2: Appointments */}
+                        <motion.section
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="rounded-2xl p-6 border border-border bg-gradient-to-br from-amber-50/80 via-orange-50/50 to-rose-50/80 dark:from-amber-900/20 dark:via-orange-900/10 dark:to-rose-900/20"
+                        >
+                            <div className="flex justify-between items-center mb-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white shadow-md">
+                                        <Calendar className="w-5 h-5" />
                                     </div>
-                                    <Skeleton className="h-8 w-20 rounded-full" />
+                                    <h2 className="text-xl font-semibold text-foreground">
+                                        Upcoming Appointments
+                                    </h2>
                                 </div>
-                            ))}
-                        </div>
-                    ) : error ? (
-                        <p className="text-red-500 text-center py-8">{error}</p>
-                    ) : appointments.length === 0 ? (
-                        <p className="text-muted-foreground text-center py-8">
-                            No upcoming appointments. Book one to get started!
-                        </p>
-                    ) : (
-                        <motion.div layout className="space-y-4">
-                            <AnimatePresence mode="popLayout">
-                                {appointments.map((apt) => (
-                                    <motion.div
-                                        layout
-                                        initial={{ opacity: 0, scale: 0.95 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 0.95 }}
-                                        transition={{ duration: 0.2 }}
-                                        key={apt.id}
-                                        className="flex items-center justify-between p-4 bg-zen-cream-dark dark:bg-secondary rounded-xl"
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-zen-sage-light to-zen-sage flex items-center justify-center text-white font-semibold shadow-sm">
-                                                {apt.doctor_name.split(' ').map(n => n[0]).join('')}
-                                            </div>
-                                            <div className="min-w-0">
-                                                <p className="font-medium text-foreground truncate">{apt.doctor_name}</p>
-                                                <p className="text-sm text-muted-foreground">
-                                                    {format(new Date(apt.scheduled_at), 'MMM d, yyyy')} at {format(new Date(apt.scheduled_at), 'h:mm a')}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <span className="px-3 py-1 text-xs font-medium bg-zen-sage/20 text-zen-sage-dark rounded-full">
-                                                {apt.status}
-                                            </span>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                disabled={cancellingId === apt.id}
-                                                className="rounded-full hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-900/20"
-                                                onClick={() => handleCancel(apt.id)}
-                                            >
-                                                {cancellingId === apt.id ? 'Cancelling...' : 'Cancel'}
-                                            </Button>
-                                        </div>
-                                    </motion.div>
-                                ))}
-                            </AnimatePresence>
-                        </motion.div>
-                    )}
-                </section>
+                                <Link href="/dashboard/book">
+                                    <Button variant="ghost" size="sm" className="text-orange-600 hover:text-orange-700 hover:bg-orange-100/50 dark:text-orange-400">
+                                        View All <ArrowRight className="w-4 h-4 ml-1" />
+                                    </Button>
+                                </Link>
+                            </div>
 
-                <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Link href="/quiz" className="block">
-                        <div className="zen-card zen-gradient-sage text-white hover:shadow-xl transition-shadow">
-                            <h3 className="text-xl font-semibold mb-2">Take a Wellness Check</h3>
-                            <p className="opacity-90">Quick 5-question assessment to understand your stress levels.</p>
-                        </div>
-                    </Link>
-                    <div className="zen-card">
-                        <h3 className="text-xl font-semibold text-foreground mb-2">Resources</h3>
-                        <p className="text-muted-foreground">Browse articles and tips for mental wellness.</p>
+                            {isLoading ? (
+                                <div className="space-y-3">
+                                    {[1, 2].map((i) => (
+                                        <Skeleton key={i} className="h-16 rounded-xl" />
+                                    ))}
+                                </div>
+                            ) : error ? (
+                                <p className="text-red-500 text-center py-6">{error}</p>
+                            ) : appointments.length === 0 ? (
+                                <div className="text-center py-8">
+                                    <p className="text-muted-foreground mb-4">No upcoming appointments.</p>
+                                    <Link href="/dashboard/book">
+                                        <Button className="rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-none shadow-md">
+                                            Book Your First Session
+                                        </Button>
+                                    </Link>
+                                </div>
+                            ) : (
+                                <motion.div layout className="space-y-3">
+                                    <AnimatePresence mode="popLayout">
+                                        {appointments.slice(0, 3).map((apt) => (
+                                            <motion.div
+                                                layout
+                                                initial={{ opacity: 0, scale: 0.95 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                exit={{ opacity: 0, scale: 0.95 }}
+                                                key={apt.id}
+                                                className="flex items-center justify-between p-4 bg-white/60 dark:bg-card/60 backdrop-blur-sm rounded-xl border border-amber-100 dark:border-amber-800/30"
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-semibold text-sm shadow-sm">
+                                                        {apt.doctor_name.split(' ').map(n => n[0]).join('')}
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-medium text-foreground">{apt.doctor_name}</p>
+                                                        <p className="text-sm text-muted-foreground">
+                                                            {format(new Date(apt.scheduled_at), 'MMM d')} at {format(new Date(apt.scheduled_at), 'h:mm a')}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    disabled={cancellingId === apt.id}
+                                                    className="rounded-full text-muted-foreground hover:text-red-600 hover:bg-red-50"
+                                                    onClick={() => handleCancel(apt.id)}
+                                                >
+                                                    {cancellingId === apt.id ? '...' : 'Cancel'}
+                                                </Button>
+                                            </motion.div>
+                                        ))}
+                                    </AnimatePresence>
+                                </motion.div>
+                            )}
+                        </motion.section>
                     </div>
-                </section>
+
+                    {/* Right Column - Wellness Check (spans full height) */}
+                    <div className="lg:row-span-2">
+                        <Link href="/quiz" className="block h-full">
+                            <motion.div
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.15 }}
+                                whileHover={{ scale: 1.02 }}
+                                className="rounded-2xl p-8 h-full min-h-[300px] flex flex-col justify-between bg-gradient-to-br from-green-50 via-emerald-50/80 to-white dark:from-emerald-900/30 dark:via-emerald-800/20 dark:to-card border border-green-100 dark:border-emerald-800/30 shadow-sm hover:shadow-lg transition-all cursor-pointer"
+                            >
+                                <div>
+                                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-zen-sage/20 to-emerald-100 dark:from-zen-sage/30 dark:to-emerald-800/30 flex items-center justify-center mb-6">
+                                        <Heart className="w-7 h-7 text-zen-sage" />
+                                    </div>
+                                    <h3 className="text-2xl font-bold mb-3 text-foreground">Take a Wellness Check</h3>
+                                    <p className="text-muted-foreground text-lg leading-relaxed">
+                                        A quick 5-question assessment to understand your current stress levels and get personalized recommendations.
+                                    </p>
+                                </div>
+
+                                <div className="mt-8">
+                                    <div className="flex items-center gap-2 text-muted-foreground text-sm mb-3">
+                                        <span className="w-2 h-2 rounded-full bg-zen-sage/60"></span>
+                                        Takes only 2 minutes
+                                    </div>
+                                    <div className="flex items-center gap-2 text-muted-foreground text-sm mb-3">
+                                        <span className="w-2 h-2 rounded-full bg-zen-sage/60"></span>
+                                        Personalized insights
+                                    </div>
+                                    <div className="flex items-center gap-2 text-muted-foreground text-sm mb-6">
+                                        <span className="w-2 h-2 rounded-full bg-zen-sage/60"></span>
+                                        Tailored resources
+                                    </div>
+
+                                    <div className="flex items-center justify-between bg-zen-sage text-white rounded-full px-6 py-3 shadow-md">
+                                        <span className="font-medium">Start Assessment</span>
+                                        <ArrowRight className="w-5 h-5" />
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </Link>
+                    </div>
+                </div>
             </div>
         </div>
     );

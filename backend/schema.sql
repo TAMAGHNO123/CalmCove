@@ -45,7 +45,20 @@ CREATE POLICY "Allow insert for all" ON tips FOR INSERT WITH CHECK (true);
 
 -- Seed some initial data for tips
 INSERT INTO tips (tip_text, date) VALUES
-('Take a 5-minute deep breathing break properly.', '2025-02-06'),
-('Drink a glass of water right now.', '2025-02-07'),
 ('Stand up and stretch your legs.', '2025-02-08')
 ON CONFLICT (date) DO NOTHING;
+
+-- Create quiz_results table
+CREATE TABLE IF NOT EXISTS quiz_results (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id TEXT NOT NULL,
+    score INTEGER NOT NULL,
+    category TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Enable RLS for quiz_results
+ALTER TABLE quiz_results ENABLE ROW LEVEL SECURITY;
+
+-- Allow insert/read for everyone (mock auth) or specific user
+CREATE POLICY "Allow all access to quiz_results" ON quiz_results FOR ALL USING (true);
